@@ -2,6 +2,7 @@
 String Arsp, Grsp, returnVal, IMSI;
 byte req;
 int steps = 0;
+int i = 0;
 String commands[14];
 bool wSerial = false;
 int delimiter_1, delimiter_2, error_num;
@@ -34,6 +35,13 @@ void setup() {
 	}
 }
 
+void response(){
+  if(Serial.available()){
+    req = Serial.read();
+    if(req == 114) Serial.println(returnVal);
+  }
+}
+
 void blink(){
 	digitalWrite(13, HIGH);
 	delay(200);
@@ -43,6 +51,16 @@ void blink(){
 	delay(200);
 	digitalWrite(13, LOW);
 	delay(200);
+}
+
+void fastblink(){
+  for(i=0;i<20;i++){
+    digitalWrite(13, HIGH);
+    delay(25);
+    digitalWrite(13, LOW);
+    delay(25);
+  }
+  digitalWrite(13, HIGH);
 }
 
 void loop() {
@@ -192,6 +210,8 @@ void loop() {
 				delimiter_1 = Grsp.indexOf("\n", Grsp.indexOf("\n") + 1) + 1;
 				delimiter_2 = Grsp.indexOf("\n", delimiter_1);
 				returnVal = Grsp.substring(delimiter_1, delimiter_2);
+        fastblink();
+        response();
 				if(wSerial) Serial.println("Return : " + returnVal);
 				delay(20000);
 				steps = 9;
@@ -204,11 +224,6 @@ void loop() {
 			}
 		}
 	}
-	
-	if(Serial.available()){
-		req = Serial.read();
-		if(req == 114) Serial.println(returnVal);
-	}
-	
+	response();
 	if(error_num > 5) {}
 }
