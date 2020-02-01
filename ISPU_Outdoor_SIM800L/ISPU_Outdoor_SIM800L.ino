@@ -7,7 +7,7 @@ long interval = 20000;
 unsigned long currentMillis=0;	
 unsigned long previousMillis=0;
 String commands[14];
-bool wSerial = true;
+bool wSerial = false;
 int delimiter_1, delimiter_2, error_num;
 SoftwareSerial gsm(4, 5); // RX, TX
 void setup() {
@@ -79,10 +79,10 @@ void loop() {
 					delimiter_1 = Grsp.indexOf("|||") + 1;
 					delimiter_2 = Grsp.indexOf("|||", delimiter_1);
 					returnVal = "|" + Grsp.substring(delimiter_1, delimiter_2 - 1) + "|||";
-					unsigned long currentMillis = millis();
+					currentMillis = millis();
 					previousMillis = currentMillis;
 					fastblink();
-					if(wSerial) Serial.println("WriteData : " + returnVal);
+					Serial.println("WriteData : " + returnVal);
 				} else {
 					gsm.println(commands[steps]);
 					if(wSerial) Serial.println(commands[steps]);
@@ -198,7 +198,7 @@ void loop() {
 		error_num++;
 	}
 	if(steps == 13){
-		unsigned long currentMillis = millis();
+		currentMillis = millis();
 		if ((unsigned long)(currentMillis - previousMillis) >= interval){
 			steps = 9;
 			gsm.println(commands[steps]);
