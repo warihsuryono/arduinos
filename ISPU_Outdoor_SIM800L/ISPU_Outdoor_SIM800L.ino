@@ -3,8 +3,11 @@ String Arsp, Grsp, returnVal, IMSI;
 byte req;
 int steps = 0;
 int i = 0;
+long interval = 20000;
+unsigned long currentMillis=0;	
+unsigned long previousMillis=0;
 String commands[14];
-bool wSerial = false;
+bool wSerial = true;
 int delimiter_1, delimiter_2, error_num;
 SoftwareSerial gsm(4, 5); // RX, TX
 void setup() {
@@ -25,7 +28,6 @@ void setup() {
 	error_num = 0;
 	returnVal = "0";
 	Serial.begin(9600);
-	delay(2000);
 	gsm.begin(1200);//110,300,1200,2400,4800
 	if(wSerial) Serial.println("Start!");
 	while(!gsm){}
@@ -36,10 +38,10 @@ void setup() {
 }
 
 void response(){
-  if(Serial.available()){
-    req = Serial.read();
-    if(req == 114) Serial.println(returnVal);
-  }
+	if(Serial.available()){
+		req = Serial.read();
+		if(req == 114) Serial.println(returnVal);
+	}
 }
 
 void blink(){
@@ -54,45 +56,55 @@ void blink(){
 }
 
 void fastblink(){
-  for(i=0;i<20;i++){
-    digitalWrite(13, HIGH);
-    delay(25);
-    digitalWrite(13, LOW);
-    delay(25);
-  }
-  digitalWrite(13, HIGH);
+	for(i=0;i<20;i++){
+		digitalWrite(13, HIGH);
+		delay(25);
+		digitalWrite(13, LOW);
+		delay(25);
+	}
+	digitalWrite(13, HIGH);
 }
 
 void loop() {
-	if(steps == 0){
-		if(gsm.available()){
-			blink();
+	if(gsm.available()){
+		if(steps == 0 || steps == 3 || steps == 5 || steps == 6 || steps == 12){
 			Grsp = gsm.readString();
+			delay(500);
+			if(steps == 0){ blink(); }
 			if(wSerial) Serial.println(Grsp);
 			if(Grsp.indexOf("OK") > 0){
 				error_num=0;
-				steps = 1;
-				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);
+				steps++;
+				if(steps == 13){
+					delimiter_1 = Grsp.indexOf("|||") + 1;
+					delimiter_2 = Grsp.indexOf("|||", delimiter_1);
+					returnVal = "|" + Grsp.substring(delimiter_1, delimiter_2 - 1) + "|||";
+					unsigned long currentMillis = millis();
+					previousMillis = currentMillis;
+					fastblink();
+					if(wSerial) Serial.println("WriteData : " + returnVal);
+				} else {
+					gsm.println(commands[steps]);
+					if(wSerial) Serial.println(commands[steps]);
+				}
 			} else {
 				delay(1000);
 				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);  
+				if(wSerial) Serial.println(commands[steps]);
 			}
 		}
-	}
-	if(steps == 1){
-		if(gsm.available()){
-			blink();
+		if(steps == 1){
 			Grsp = gsm.readString();
+			delay(500);
+			blink();
 			if(wSerial) Serial.println(Grsp);
 			if(Grsp.indexOf("OK") > 0){
 				error_num=0;
+				steps++;
 				delimiter_1 = Grsp.indexOf("\n") + 1;
 				delimiter_2 = Grsp.indexOf("\n", delimiter_1);
 				IMSI = Grsp.substring(delimiter_1, delimiter_2 - 1);
 				if(wSerial) Serial.println("IMSI : " + IMSI);
-				steps = 2;
 				gsm.println(commands[steps]);
 				if(wSerial) Serial.println(commands[steps]);
 			} else if(Grsp.indexOf("ERROR") > 0){
@@ -105,11 +117,10 @@ void loop() {
 				if(wSerial) Serial.println(commands[steps]);  
 			}
 		}
-	}
-	if(steps == 2){
-		if(gsm.available()){
-			blink();
+		if(steps == 2){
 			Grsp = gsm.readString();
+			delay(500);
+			blink();
 			if(wSerial) Serial.println(Grsp);
 			if(Grsp.indexOf("CSQ: 0,0") > 0){
 				error_num++;
@@ -118,24 +129,8 @@ void loop() {
 				if(wSerial) Serial.println(commands[steps]);  
 			} else if(Grsp.indexOf("CSQ: ") > 0){
 				error_num=0;
-				digitalWrite(13, HIGH);
-				steps = 3;
-				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);
-			} else {
-				delay(1000);
-				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);
-			}
-		}
-	}
-	if(steps == 3 || steps == 5 || steps == 6){
-		if(gsm.available()){
-			Grsp = gsm.readString();
-			if(wSerial) Serial.println(Grsp);
-			if(Grsp.indexOf("OK") > 0){
-				error_num=0;
 				steps++;
+				digitalWrite(13, HIGH);
 				gsm.println(commands[steps]);
 				if(wSerial) Serial.println(commands[steps]);
 			} else {
@@ -144,10 +139,9 @@ void loop() {
 				if(wSerial) Serial.println(commands[steps]);
 			}
 		}
-	}
-	if(steps == 4 || steps == 7 || steps == 8 || steps == 9 || steps == 10){
-		if(gsm.available()){
+		if(steps == 4 || steps == 7 || steps == 8 || steps == 9 || steps == 10){
 			Grsp = gsm.readString();
+			delay(500);
 			if(wSerial) Serial.println(Grsp);
 			if(Grsp.indexOf("OK") > 0){
 				error_num=0;
@@ -174,15 +168,15 @@ void loop() {
 				}
 			}
 		}
-	}
-	if(steps == 11){
-		if(gsm.available()){
+		if(steps == 11){
 			delay(2000);
 			Grsp = gsm.readString();
+			delay(500);
 			if(wSerial) Serial.println(Grsp);
 			if(Grsp.indexOf("+HTTPACTION:") > 0 && Grsp.indexOf(",200,") > 0){
 				error_num=0;
-				steps = 12;
+				steps++;
+				delay(3000);
 				gsm.println(commands[steps]);
 				if(wSerial) Serial.println(commands[steps]);
 			} else if(Grsp.indexOf("+HTTPACTION:") > 0 && Grsp.indexOf(",604,") > 0){
@@ -195,33 +189,20 @@ void loop() {
 				gsm.println(commands[steps]);
 				if(wSerial) Serial.println(commands[steps]);
 			} else {
-				delay(3000);
-				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);
-			}
-		}
-	}
-	if(steps == 12){
-		if(gsm.available()){
-			Grsp = gsm.readString();
-			if(wSerial) Serial.println(Grsp);
-			if(Grsp.indexOf("OK") > 0){
-				error_num=0;
-				delimiter_1 = Grsp.indexOf("\n", Grsp.indexOf("\n") + 1) + 1;
-				delimiter_2 = Grsp.indexOf("\n", delimiter_1);
-				returnVal = Grsp.substring(delimiter_1, delimiter_2);
-        fastblink();
-        response();
-				if(wSerial) Serial.println("Return : " + returnVal);
-				delay(20000);
-				steps = 9;
-				gsm.println(commands[steps]);
-				if(wSerial) Serial.println(commands[steps]);
-			} else {
 				delay(1000);
 				gsm.println(commands[steps]);
 				if(wSerial) Serial.println(commands[steps]);
 			}
+		}
+	} else {
+		error_num++;
+	}
+	if(steps == 13){
+		unsigned long currentMillis = millis();
+		if ((unsigned long)(currentMillis - previousMillis) >= interval){
+			steps = 9;
+			gsm.println(commands[steps]);
+			if(wSerial) Serial.println(commands[steps]);
 		}
 	}
 	response();
