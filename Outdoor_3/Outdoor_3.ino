@@ -8,7 +8,7 @@ char *curr_message = "PT. TRUSUR UNGGUL TEKNUSA          ";
 char *show_message; 
 char read_char[200];
 String read_string = "";
-String text_template = "PM10: {pm10} , SO2: {so2}, CO: {co}, O3: {o3}, NO2: {no2}";
+String text_template = "{outdoor_name}: {date_time} PM10:{pm10} SO2:{so2} CO:{co} O3:{o3} NO2:{no2} VOC:{voc} SUHU:{suhu}C TEK:{tek}mBar WS: {ws}m/s WD:{wd}";
 bool reading;
 String data;
 
@@ -17,20 +17,11 @@ DMD_TextBox box(dmd,0,1,32 * WIDTH,0);//L,T,W,H
 
 void setup() {
     Serial.begin(9600);
-    master.begin(110);
+    master.begin(1200);
     dmd.setBrightness(255);
     dmd.selectFont(Arial14);
     dmd.begin();
     Serial.println("Begin");
-}
-
-String category(String val){
-    if(val == "0") return "BAIK";
-    else if(val == "1") return "SEDANG";
-    else if(val == "2") return "TIDAK SEHAT";
-    else if(val == "3") return "SANGAT TIDAK SEHAT";
-    else if(val == "4") return "BERBAHAYA";
-    else return "";
 }
 
 void loop() {
@@ -42,7 +33,6 @@ void loop() {
     }
     
     if(i > 0){
-        Serial.println(read_char);
         String pm10 = category(String(read_char[0]));
         String so2 = category(String(read_char[1]));
         String co = category(String(read_char[2]));
