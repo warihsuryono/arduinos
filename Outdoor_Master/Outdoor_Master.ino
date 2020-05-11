@@ -27,7 +27,49 @@ void loop() {
             text2.print(data);
             Serial.println("OK");
         } else if(String(read_string[0]) == "3"){
-            text3.print(data);
+            int i_var = 0;
+            String outdoor_name,date_time,pm10,so2,co,o3,no2,suhu,tek,ws,wd;
+            outdoor_name = "";
+            date_time = "";
+            pm10 = "";
+            so2 = "";
+            co = "";
+            o3 = "";
+            no2 = "";
+            suhu = "";
+            tek = "";
+            ws = "";
+            wd = "";
+            for (int x = 1; x <= read_string.length(); x++) {
+                if(String(read_string[x]) == ";" || String(read_string[x]) == "]") {
+                    i_var++;
+                } else {
+                    if(i_var == 0) outdoor_name += read_string[x];
+                    if(i_var == 1) date_time += read_string[x];
+                    if(i_var == 2) pm10 += read_string[x];
+                    if(i_var == 3) so2 += read_string[x];
+                    if(i_var == 4) co += read_string[x];
+                    if(i_var == 5) o3 += read_string[x];
+                    if(i_var == 6) no2 += read_string[x];
+                    if(i_var == 7) suhu += read_string[x];
+                    if(i_var == 8) tek += read_string[x];
+                    if(i_var == 9) ws += read_string[x];
+                    if(i_var == 10) wd += read_string[x];
+                }
+            }
+            String messages = "1" + outdoor_name + ";" + date_time + "]";
+            Serial.print(messages);
+            text3.print(messages);
+            delay(20000);
+
+            messages = "2" + pm10 + ";" + so2 + ";" + co + ";" + o3 + ";" + no2 + "]";
+            Serial.print(messages);
+            text3.print(messages);
+            delay(30000);
+
+            messages = "3" + suhu + ";" + tek + ";" + ws + ";" + wd + "]";
+            Serial.println(messages);
+            text3.println(messages);
             Serial.println("OK");
         } else {
             Serial.println("Error");

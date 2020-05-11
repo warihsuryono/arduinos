@@ -1,26 +1,31 @@
 #include <SoftwareSerial.h>
 #include <SPI.h>
-#include <DMD2.h>
+#include <DMD.h>
+#include <TimerOne.h>
 #include <fonts/Arial_bold_14.h>
 SoftwareSerial master(2,3);
-const int WIDTH = 3;
-char *curr_message = "PT. TRUSUR UNGGUL TEKNUSA          ";
+#define DISPLAYS_ACROSS 6
+#define DISPLAYS_DOWN 1
+char *curr_message = "PT. TRUSUR UNGGUL TEKNUSA";
 char *show_message; 
 char read_char[200];
 String read_string = "";
-String text_template = "PM10: {pm10} , SO2: {so2}, CO: {co}, O3: {o3}, NO2: {no2}";
+String text_template = "PM10: {pm10}, SO2: {so2}, CO: {co}, O3: {o3}, NO2: {no2}";
 bool reading;
 String data;
 
-SoftDMD dmd(WIDTH,1);
-DMD_TextBox box(dmd,0,1,32 * WIDTH,0);//L,T,W,H
+DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
+
+void ScanDMD(){ 
+    dmd.scanDisplayBySPI();
+}
 
 void setup() {
     Serial.begin(9600);
     master.begin(110);
-    dmd.setBrightness(255);
+    Timer1.initialize( 5000 );
+    Timer1.attachInterrupt( ScanDMD );
     dmd.selectFont(Arial14);
-    dmd.begin();
     Serial.println("Begin");
 }
 
@@ -65,10 +70,17 @@ void loop() {
     if(!reading){
         Serial.print(" ==> ");
         Serial.println(show_message);
-        while(*show_message) {
-            box.print(*show_message);
-            delay(100);
-            *show_message++;
-        }
+
+         dmd.clearScreen( true );
+         dmd.drawMarquee(show_message,strlen(show_message),(32*DISPLAYS_ACROSS)-1,0);
+         long start=millis();
+         long timer=start;
+         boolean ret=false;
+         while(!ret){
+             if ((timer+30) < millis()) {
+                 ret=dmd.stepMarquee(-1,0);
+                 timer=millis();
+             }
+         }
     }
 }
