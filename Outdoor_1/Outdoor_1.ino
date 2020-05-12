@@ -2,9 +2,9 @@
 #include <SPI.h>
 #include <DMD.h>
 #include <TimerOne.h>
-#include <fonts/Arial_bold_14.h>
+#include <fonts/Droid_Sans_12.h>
 SoftwareSerial master(2,3);
-#define DISPLAYS_ACROSS 6
+#define DISPLAYS_ACROSS 3
 #define DISPLAYS_DOWN 1
 char *curr_message = "PT. TRUSUR UNGGUL TEKNUSA";
 char *show_message; 
@@ -13,6 +13,7 @@ String read_string = "";
 String text_template = "PM10: {pm10}, SO2: {so2}, CO: {co}, O3: {o3}, NO2: {no2}";
 bool reading;
 String data;
+int speedmarquee = 30;
 
 DMD dmd(DISPLAYS_ACROSS, DISPLAYS_DOWN);
 
@@ -25,7 +26,7 @@ void setup() {
     master.begin(110);
     Timer1.initialize( 5000 );
     Timer1.attachInterrupt( ScanDMD );
-    dmd.selectFont(Arial14);
+    dmd.selectFont(Droid_Sans_12);
     Serial.println("Begin");
 }
 
@@ -72,12 +73,12 @@ void loop() {
         Serial.println(show_message);
 
          dmd.clearScreen( true );
-         dmd.drawMarquee(show_message,strlen(show_message),(32*DISPLAYS_ACROSS)-1,0);
+         dmd.drawMarquee(show_message,strlen(show_message),(32*DISPLAYS_ACROSS)-1,3);
          long start=millis();
          long timer=start;
          boolean ret=false;
          while(!ret){
-             if ((timer+30) < millis()) {
+             if ((timer+speedmarquee) < millis()) {
                  ret=dmd.stepMarquee(-1,0);
                  timer=millis();
              }

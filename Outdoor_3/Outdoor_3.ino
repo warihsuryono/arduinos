@@ -2,9 +2,9 @@
 #include <TimerOne.h>
 #include <SPI.h>
 #include <DMD.h>
-#include <fonts/Arial_bold_14.h>
+#include <fonts/Droid_Sans_12.h>
 SoftwareSerial master(2,3);
-const int WIDTH = 6;
+const int WIDTH = 3;
 const String text_template_1 = "Stasiun _a: _b ";
 const String text_template_2 = "PM10:_a SO2:_b CO:_c O3:_d NO2:_e ";
 const String text_template_3 = "SUHU:_aC TEK:_bmBar WS: _cm/s WD:_d";
@@ -16,7 +16,7 @@ bool reading;
 String data;
 String outdoor_name,date_time,pm10,so2,co,o3,no2,suhu,tek,ws,wd;
 int i = 0;
-int speedmarquee = 20;
+int speedmarquee = 30;
 
 DMD dmd(WIDTH,1);
 void ScanDMD(){ 
@@ -28,7 +28,7 @@ void setup() {
     master.begin(110);
     Timer1.initialize( 5000 );
     Timer1.attachInterrupt( ScanDMD );
-    dmd.selectFont(Arial14);
+    dmd.selectFont(Droid_Sans_12);
     Serial.println("Begin");
 }
 
@@ -120,7 +120,7 @@ void loop() {
     Serial.println(read_string_3);
 
     dmd.clearScreen( true );
-    dmd.drawMarquee(read_string_1.c_str(),strlen(read_string_1.c_str()),(32*WIDTH)-1,0);
+    dmd.drawMarquee(read_string_1.c_str(),strlen(read_string_1.c_str()),(32*WIDTH)-1,3);
     long start=millis();
     long timer=start;
     boolean ret=false;
@@ -132,7 +132,7 @@ void loop() {
     }
 
     dmd.clearScreen( true );
-    dmd.drawMarquee(read_string_2.c_str(),strlen(read_string_2.c_str()),(32*WIDTH)-1,0);
+    dmd.drawMarquee(read_string_2.c_str(),strlen(read_string_2.c_str()),(32*WIDTH)-1,3);
     start=millis();
     timer=start;
     ret=false;
@@ -144,7 +144,7 @@ void loop() {
     }
 
     dmd.clearScreen( true );
-    dmd.drawMarquee(read_string_3.c_str(),strlen(read_string_3.c_str()),(32*WIDTH)-1,0);
+    dmd.drawMarquee(read_string_3.c_str(),strlen(read_string_3.c_str()),(32*WIDTH)-1,3);
     start=millis();
     timer=start;
     ret=false;
