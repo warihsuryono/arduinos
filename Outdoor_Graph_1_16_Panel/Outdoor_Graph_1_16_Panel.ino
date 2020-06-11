@@ -5,6 +5,7 @@ SoftwareSerial master(2,3);
 const int bar_width = 16;
 const int WIDTH = 6; 
 char read_char[200];
+String read_string = "";
 bool reading;
 String pm10_s,so2_s,co_s;
 int pm10,so2,co;
@@ -22,38 +23,34 @@ SoftDMD dmd(WIDTH,1);
 void setup() {
     Serial.begin(9600);
     master.begin(110);
-    dmd.setBrightness(5);
+    dmd.setBrightness(255);
     dmd.begin();
     Serial.println("Begin");
 }
 
 void loop() {
-    while (master.available()>0){
-        if(String(read_char).indexOf("]") <= 0) reading = true;
-        read_char[i] = master.read();
-        if(String(read_char[i]) == "]") reading = false;
-        i++;
-        delay(20);
-    }
+    if(Serial.available() > 0){
+        read_string = Serial.readString();
+        Serial.print(read_string);
+        if(String(read_string[0]) == "2"){
+            int i_var = 0;
+            pm10_s = "";
+            so2_s = "";
+            co_s = "";
     
-    if(i > 0 && !reading){
-        i = 0;
-        int i_var = 0;
-        pm10_s = "";
-        so2_s = "";
-        co_s = "";
-
-        for (int x = 0; x <= 200; x++) {
-            if(String(read_char[x]) == ";" || String(read_char[x]) == "]") {
-                if(String(read_char[x]) == "]") x = 200;
-                i_var++;
-            }else {
-                if(i_var == 0) pm10_s += String(read_char[x]);
-                if(i_var == 1) so2_s += String(read_char[x]);
-                if(i_var == 2) co_s += String(read_char[x]);
+            for (int x = 0; x <= read_string.length(); x++) {
+                if(String(read_string[x]) == ";" || String(read_string[x]) == "]") {
+                    if(String(read_string[x]) == "]") x = 200;
+                    i_var++;
+                }else {
+                    if(i_var == 1) pm10_s += String(read_string[x]);
+                    if(i_var == 2) so2_s += String(read_string[x]);
+                    if(i_var == 3) co_s += String(read_string[x]);
+                }
             }
+            dmd.clearScreen();
+            Serial.println("OK");
         }
-        dmd.clearScreen();
     }
 
     pm10 = pm10_s.toInt();

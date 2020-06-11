@@ -5,6 +5,7 @@ SoftwareSerial master(2,3);
 const int bar_width = 16;
 const int WIDTH = 4; 
 char read_char[200];
+String read_string = "";
 bool reading;
 String o3_s,no2_s;
 int o3,no2;
@@ -20,38 +21,34 @@ SoftDMD dmd(WIDTH,1);
 void setup() {
     Serial.begin(9600);
     master.begin(110);
-    dmd.setBrightness(5);
+    dmd.setBrightness(255);
     dmd.begin();
     Serial.println("Begin");
 }
 
 void loop() {
-    while (master.available()>0){
-        if(String(read_char).indexOf("]") <= 0) reading = true;
-        read_char[i] = master.read();
-        if(String(read_char[i]) == "]") reading = false;
-        i++;
-        delay(20);
-    }
+    if(master.available() > 0){
+        read_string = master.readString();
+        Serial.print(read_string);
+        delay(200);
+        if(String(read_string[0]) == "2"){
+            int i_var = 0;
+            o3_s = "";
+            no2_s = "";
     
-    if(i > 0 && !reading){
-        i = 0;
-        int i_var = 0;
-        o3_s = "";
-        no2_s = "";
-
-        for (int x = 0; x <= 200; x++) {
-            if(String(read_char[x]) == ";" || String(read_char[x]) == "]") {
-                if(String(read_char[x]) == "]") x = 200;
-                i_var++;
-            }else {
-                if(i_var == 3) o3_s += String(read_char[x]);
-                if(i_var == 4) no2_s += String(read_char[x]);
+            for (int x = 0; x <= read_string.length(); x++) {
+                if(String(read_string[x]) == ";" || String(read_string[x]) == "]") {
+                    if(String(read_string[x]) == "]") x = 200;
+                    i_var++;
+                }else {
+                    if(i_var == 4) o3_s += String(read_string[x]);
+                    if(i_var == 5) no2_s += String(read_string[x]);
+                }
             }
+            dmd.clearScreen();
+            Serial.println("OK");
         }
-        dmd.clearScreen();
     }
-
    
     o3 = o3_s.toInt();
     no2 = no2_s.toInt();
