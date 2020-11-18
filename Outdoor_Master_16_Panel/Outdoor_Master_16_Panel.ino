@@ -13,6 +13,7 @@ void setup() {
     textBawah.begin(110);
     graph1.begin(110);
     graph2.begin(110);
+    Serial.println("Begin");
 }
 
 void loop() {

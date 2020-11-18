@@ -3,7 +3,7 @@
 #include <DMD.h>
 #include <TimerOne.h>
 #include <fonts/Droid_Sans_12.h>
-SoftwareSerial master(4,5);
+SoftwareSerial master(2,3);
 const int WIDTH = 3;
 const String text_template_1 = "Stasiun _a: _b ";
 const String text_template_2 = "PM10:_a SO2:_b CO:_c O3:_d NO2:_e ";

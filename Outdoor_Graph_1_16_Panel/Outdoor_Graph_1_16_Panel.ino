@@ -29,8 +29,8 @@ void setup() {
 }
 
 void loop() {
-    if(Serial.available() > 0){
-        read_string = Serial.readString();
+    if(master.available() > 0){
+        read_string = master.readString();
         Serial.print(read_string);
         if(String(read_string[0]) == "2"){
             int i_var = 0;

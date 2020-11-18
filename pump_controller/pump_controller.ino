@@ -1,17 +1,28 @@
+#include "Adafruit_CCS811.h"
+
+Adafruit_CCS811 ccs;
 
 void setup() {
-  pinMode(7, OUTPUT);
   Serial.begin(9600);
+  if(!ccs.begin()){
+      Serial.println("Failed to start sensor! Please check your wiring.");
+      while(1);
+  }
+
+  while(!ccs.available());
+  float temp = ccs.calculateTemperature();
+  ccs.setTempOffset(temp - 25.0);
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    char c = Serial.read();
-    if (c == 'i') {
-      digitalWrite(7, HIGH);
+    if(ccs.available()){
+        float temp = ccs.calculateTemperature();
+        if(!ccs.readData()){
+            String val = String(ccs.getTVOC());
+            Serial.println(val);
+        } else {
+            while(1);
+        }
     }
-    if (c == 'j') {
-      digitalWrite(7, LOW);
-    }
-  }
+    delay(1000);
 }
