@@ -34,25 +34,25 @@ void loop() {
         }
 
         if(inChar == 'q'){//sample
-            digitalWrite(sample,LOW);
+            digitalWrite(sample,HIGH);
             digitalWrite(zero,HIGH);
             digitalWrite(span_h2s,HIGH);
             digitalWrite(span_cs2,HIGH);
         }
         if(inChar == 'w'){//zero
-            digitalWrite(sample,HIGH);
+            digitalWrite(sample,LOW);
             digitalWrite(zero,LOW);
             digitalWrite(span_h2s,HIGH);
             digitalWrite(span_cs2,HIGH);
         }
         if(inChar == 'e'){//span_h2s
-            digitalWrite(sample,HIGH);
+            digitalWrite(sample,LOW);
             digitalWrite(zero,HIGH);
             digitalWrite(span_h2s,LOW);
             digitalWrite(span_cs2,HIGH);
         }
         if(inChar == 'r'){//span_cs2
-            digitalWrite(sample,HIGH);
+            digitalWrite(sample,LOW);
             digitalWrite(zero,HIGH);
             digitalWrite(span_h2s,HIGH);
             digitalWrite(span_cs2,LOW);
