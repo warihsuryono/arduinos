@@ -1,13 +1,5 @@
-#include <SoftwareSerial.h>
-SoftwareSerial pm25(10,11);
-SoftwareSerial pm10(8,9);
-
-String read_string_pm25 = "";
-String read_string_pm10 = "";
-String string_pm25 = "";
-String string_pm10 = "";
-int try_pm25 = 0;
-int try_pm10 = 0;
+String string_pm01 = "";
+String string_pm02 = "";
 
 int sensor1 = A0;
 int sensor2 = A1;
@@ -16,77 +8,58 @@ int val2 = 0;
 
 void setup() {
     Serial.begin(9600);
-    pm25.begin(9600);
-    pm10.begin(9600);
+    Serial1.begin(9600);
+    Serial2.begin(9600);
     delay(1000);
 }
 
 String getValue(String data)
 {
     String retval = "";
+    String temp = "";
     if(data.length() > 0){
-      int comas = 0;
-      for(int i=0;i<data.length() - 1;i++){
-        if(comas < 2 && data[i] != ','){
-          retval += data[i];
-        } else {
-          if(comas < 1) retval += ";";
-          comas++;
+      temp += data[0];
+      temp += data[1];
+      temp += data[2];
+      temp += data[3];
+      if(temp == "000."){
+        int comas = 0;
+        for(int i=0;i<data.length() - 1;i++){
+          if(comas < 2 && data[i] != ','){
+            retval += data[i];
+          } else {
+            if(comas < 1) retval += ";";
+            comas++;
+          }
         }
+      } else {
+        retval = "000.000;0.0";
       }
     }
     return retval;
 }
 
-void read_pm25(){
-    try_pm25 = 0;
-    // string_pm25 = "";
-    read_string_pm25 = "";
-    pm25.listen();
-    delay(1000);
-    while(pm25.available() <= 0){
-      try_pm25++;
-      if(try_pm25 > 200) break;
-    }
-    if(pm25.available() > 0){
-      while(pm25.available() > 0){
-        char pm25_read = pm25.read();
-        read_string_pm25 += pm25_read;
-        if(pm25_read == 13){
-          string_pm25 = read_string_pm25;
-          break;
-        }
-      }  
-    }
-}
-
-void read_pm10(){
-    try_pm10 = 0;
-    // string_pm10 = "";
-    read_string_pm10 = "";
-    pm10.listen();
-    delay(1000);
-    while(pm10.available() <= 0){
-      try_pm10++;
-      if(try_pm10 > 200) break;
-    }
-    if(pm10.available() > 0){
-      while(pm10.available() > 0){
-        char pm10_read = pm10.read();
-        read_string_pm10 += pm10_read;
-        if(pm10_read == 13){
-          string_pm10 = read_string_pm10;
-          break;
-        }
-      }  
-    }
-}
-
 void loop() {
-    val1 = analogRead(sensor1);
-    val2 = analogRead(sensor2);
-    read_pm25();
-    Serial.println("METONE;" + getValue(string_pm25) + ";" + getValue(string_pm10) + ";" + val1 + ";" + val2 + ";");
-    read_pm10();
-    Serial.println("METONE;" + getValue(string_pm25) + ";" + getValue(string_pm10) + ";" + val1 + ";" + val2 + ";");
+  
+  val1 = analogRead(sensor1);
+  val2 = analogRead(sensor2);
+  
+  if(Serial1.available() > 0){
+    string_pm01 = "";
+    while(Serial1.available() > 0){
+      char pm01_read = Serial1.read();
+      if(pm01_read != 13 && pm01_read != 10){string_pm01 += pm01_read;}
+    }
+  }
+  
+  if(Serial2.available() > 0){
+    string_pm02 = "";
+    while(Serial2.available() > 0){
+      char pm02_read = Serial2.read();
+      if(pm02_read != 13 && pm02_read != 10){string_pm02 += pm02_read;}
+    }
+  }
+  
+  Serial.println("METONE;" + getValue(string_pm01) + ";" + getValue(string_pm02) + ";" + val1 + ";" + val2 + ";");
+  delay(1000);
 }
