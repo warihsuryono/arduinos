@@ -4,6 +4,6 @@ void setup() {
 }
 
 void loop() {
-    Serial.println(String(random(1,12)));
+    Serial.println(String(random(12,45)));
     delay(1000);
 }
